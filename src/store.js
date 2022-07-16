@@ -26,6 +26,9 @@ const usersReducer = (state = [], action)=> {
   if(action.type === 'CREATE_USER'){
     return [...state, action.user ]; 
   }
+  if(action.type === 'UPDATE_USER'){
+    return state.map(user => user.id !== action.user.id ? user : action.user);
+  }
   return state;
 };
 
@@ -53,7 +56,7 @@ const reducer = combineReducers({
 
 const createThing = () => {
   return async(dispatch) => {
-    await (axios.post('/api/things', { name: Math.random()})).data;
+    thing = (await axios.post('/api/things', { name: Math.random()})).data;
     dispatch({ type: 'CREATE_THING', thing });
   };
 }
@@ -64,6 +67,7 @@ const updateThing = (thing)=> {
     dispatch({ type: 'UPDATE_THING', thing });
   };
 };
+
 const deleteThing = (thing)=> {
   return async(dispatch)=> {
     await axios.delete(`/api/things/${thing.id}`);
@@ -71,7 +75,7 @@ const deleteThing = (thing)=> {
   };
 };
 
-const createUser = () => {
+const createUser = (user) => {
   return async(dispatch)=> {
     await (axios.post('/api/users', {name: Math.random()})).data;
     dispatch({ type: 'CREATE_USER', user});
@@ -83,7 +87,7 @@ const createUser = () => {
 const removeThingFromUser = (thing) => {
   return async(dispatch) => {
     await (axios.put(`/api/things/${thing.id}`, thing)).data;
-    dispatch({ type: 'UPDATE_THING', thing: updatedThing});
+    dispatch({ type: 'UPDATE_THING', thing: updateThing});
   }
 };
 
@@ -94,11 +98,16 @@ const deleteUser = (user) => {
   }
 };
 
-
+const updateUser = (user)=> {
+  return async(dispatch)=> {
+    user = (await axios.put(`/api/users/${user.id}`, user)).data;
+    dispatch({ type: 'UPDATE_USER', user });
+  };
+};
 
 const store = createStore(reducer, applyMiddleware(logger, thunk));
 
-export { deleteThing, updateThing, createUser, removeThingFromUser, deleteUser, createThing };
+export { deleteThing, updateThing, createUser, removeThingFromUser, deleteUser, createThing, updateUser };
 
 export default store;
 
